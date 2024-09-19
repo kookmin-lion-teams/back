@@ -19,7 +19,7 @@ def get_all_students():
     try:
         cursor = connection.cursor(dictionary=True)
 
-        # 학생 전체 목록 조회 쿼리
+        # 학생 전체 목록 조회 쿼리 (SLEEPCOUNT 포함)
         cursor.execute("SELECT * FROM STUDENT")
         students = cursor.fetchall()
 

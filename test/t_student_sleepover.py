@@ -10,10 +10,10 @@ class TestStudentSleepover(unittest.TestCase):
 
         # 올바른 요청 데이터
         correct_payload = {
-            'sstnum': '20212621',  # 예시 학번
-            'reason': 'Family event',
-            'startdate': '2024-09-18',
-            'enddate': '2024-09-20'
+            'sstnum': '25',  # 예시 학번
+            'reason': 'test',
+            'startdate': '2024-09-23',
+            'enddate': '2024-09-25'
         }
 
         # API 호출

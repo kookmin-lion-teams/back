@@ -5,7 +5,7 @@ def test_student_login():
     url = 'http://127.0.0.1:5000/student/login'
 
     # 올바른 학생 이름과 학번으로 로그인 시도
-    correct_payload = {'name': '김준서', 'stnum': '20212621'}
+    correct_payload = {'name': '김준서', 'stnum': '100'}
     response = requests.post(url, json=correct_payload)
 
     # 응답 출력

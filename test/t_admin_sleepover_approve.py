@@ -1,49 +1,34 @@
-import unittest
 import requests
+import unittest
 
-class TestAdminSleepoverApproval(unittest.TestCase):
+class TestApproveSleepoverRequest(unittest.TestCase):
 
     def test_approve_sleepover_request(self):
-        # API URL 정의
-        url_approve = 'http://127.0.0.1:5000/admin/sleepover_approve'
-        url_list = 'http://127.0.0.1:5000/admin/sleepover_requests'
-        
-        # 외박 신청서 목록 조회
-        response = requests.get(url_list)
-        self.assertEqual(response.status_code, 200, f"Failed to fetch sleepover requests with status code {response.status_code}")
-        
-        requests_list = response.json().get('requests', [])
+        # 외박 신청서 승인 API 엔드포인트 URL
+        url = 'http://127.0.0.1:5000/admin/sleepover_approve'
 
-        # 승인할 첫 번째 신청서 선택 (있을 경우)
-        if requests_list:
-            request_id = requests_list[0]['SID']
+        # 승인할 외박 신청 SID (테스트할 값으로 변경)
+        correct_payload = {
+            'sid': 2  # 테스트할 외박 신청 SID (예: 2)
+        }
 
-            # 승인 테스트
-            approve_payload = {'action': 'approve'}
-            response = requests.post(f"{url_approve}/{request_id}", json=approve_payload)
-            self.assertEqual(response.status_code, 200, f"Failed to approve sleepover request with status code {response.status_code}")
-            print("Approval test passed!")
+        # API 호출
+        response = requests.post(url, json=correct_payload)
 
-    def test_reject_sleepover_request(self):
-        # API URL 정의
-        url_reject = 'http://127.0.0.1:5000/admin/sleepover_approve'
-        url_list = 'http://127.0.0.1:5000/admin/sleepover_requests'
-        
-        # 외박 신청서 목록 조회
-        response = requests.get(url_list)
-        self.assertEqual(response.status_code, 200, f"Failed to fetch sleepover requests with status code {response.status_code}")
-        
-        requests_list = response.json().get('requests', [])
+        # 응답 상태 코드 출력
+        print("Response status code:", response.status_code)
 
-        # 미승인할 첫 번째 신청서 선택 (있을 경우)
-        if requests_list:
-            request_id = requests_list[0]['SID']
+        # 응답 데이터 출력
+        try:
+            response_json = response.json()
+            print("Response JSON:", response_json)
+        except ValueError:
+            print("Failed to decode JSON. Response content:", response.text)
 
-            # 미승인 테스트
-            reject_payload = {'action': 'reject'}
-            response = requests.post(f"{url_reject}/{request_id}", json=reject_payload)
-            self.assertEqual(response.status_code, 200, f"Failed to reject sleepover request with status code {response.status_code}")
-            print("Rejection test passed!")
+        # API 호출 결과를 검증
+        self.assertEqual(response.status_code, 200, f"Expected status code 200, but got {response.status_code}")
+        self.assertIn('Sleepover request approved', response_json.get('message', ''), "Sleepover request not approved correctly.")
+        print("Test for approving sleepover request passed!")
 
 if __name__ == '__main__':
     unittest.main()

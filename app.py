@@ -65,6 +65,7 @@ scheduler.add_job(func=mark_absent_students, trigger='cron', hour=9, minute=10)
 
 # 매월 1일 00:00에 reset_sleepcount 함수를 실행하는 작업 추가
 scheduler.add_job(func=reset_sleepcount, trigger='cron', day=1, hour=0, minute=0)
+# app.py 파일안에 스케줄러가 같이 실행되고잇으면 서버가 열려있는 한 스케줄러도 계속 같이 돌아가는 상태라고 합니다 나도 몰라 
 
 # 스케줄러 시작
 scheduler.start()

@@ -8,6 +8,7 @@ from student_away import student_away_bp, reset_attendance, mark_absent_students
 from student_sleepover import student_sleepover_bp # 학생 외박 신청 
 from admin_sleepover_requests import admin_sleepover_requests_bp # 관리자 학생 외박 목록 조회
 from admin_sleepover_approve import admin_sleepover_approve_bp # 외박 승인 거부 
+from admin_sleepover_reject import admin_sleepover_reject_bp 
 from student_clean import student_clean_bp # 청소 사진 업로드
 from admin_clean import admin_clean_bp # 청소 목록 조회
 from admin_warn import admin_warn_bp # 청소 상태 경고 ( warn 2 스택 0 초기화 학생 테이블 minus + 1)
@@ -28,7 +29,7 @@ app.register_blueprint(student_clean_bp)
 app.register_blueprint(admin_clean_bp)
 app.register_blueprint(admin_warn_bp)
 app.register_blueprint(admin_student_bp)
-
+app.register_blueprint(admin_sleepover_reject_bp)
 # 학생의 sleepcount 값을 0으로 초기화하는 함수
 def reset_sleepcount():
     try:

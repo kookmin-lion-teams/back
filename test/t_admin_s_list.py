@@ -1,35 +1,38 @@
 import requests
-import json
+import unittest
 
-def test_get_all_students():
-    # API 엔드포인트 URL
-    url = 'http://127.0.0.1:5000/admin/students'  # 엔드포인트 URL
+class TestGetAllStudents(unittest.TestCase):
 
-    # GET 요청을 보내 학생 전체 목록을 조회
-    response = requests.get(url)
+    def test_get_all_students(self):
+        # API 엔드포인트 URL
+        url = 'http://127.0.0.1:5000/admin/students'
 
-    # 응답 출력
-    print("Response status code:", response.status_code)
+        # GET 요청을 보내 학생 전체 목록 조회
+        response = requests.get(url)
 
-    # JSON 형식 응답 파싱 시도
-    try:
+        # 응답 상태 코드 확인
+        print("Response status code:", response.status_code)
+        self.assertEqual(response.status_code, 200, f"Expected status code 200, but got {response.status_code}")
+
+        # JSON 응답 데이터 확인
         response_json = response.json()
-        # 학생 목록이 있는지 확인
-        assert response.status_code == 200, f"Expected status code 200, but got {response.status_code}"
-        assert 'students' in response_json, "Failed to retrieve students list"
+        print("Response JSON:", response_json)
 
-        # 학생 목록 출력
+        # 'students' 키가 있는지 확인
+        self.assertIn('students', response_json, "Response JSON does not contain 'students' key")
+
+        # 학생 목록 데이터가 올바른지 확인
         students = response_json['students']
-        print("\nStudents List:\n")
+        self.assertIsInstance(students, list, "Expected 'students' to be a list")
+        
+        # 각 학생의 정보를 확인 (필수 필드 및 'away_count' 필드 확인)
         for student in students:
-            # 학생 한 명의 정보를 JSON 문자열로 변환하여 보기 좋게 출력
-            formatted_student = json.dumps(student, indent=4, ensure_ascii=False)
-            print(formatted_student)
-            print("-" * 80)  # 구분선
+            self.assertIn('STNUM', student, "Each student record should contain 'STNUM'")
+            self.assertIn('NAME', student, "Each student record should contain 'NAME'")
+            self.assertIn('away_count', student, "Each student record should contain 'away_count'")
+            print(f"Student {student['STNUM']} - {student['NAME']} has {student['away_count']} missed check-ins")
 
-        print("Test to get all students passed!")
-    except ValueError:
-        print("Failed to decode JSON. Response content:", response.text)
+        print("Test to get all students with away_count passed!")
 
 if __name__ == '__main__':
-    test_get_all_students()
+    unittest.main()

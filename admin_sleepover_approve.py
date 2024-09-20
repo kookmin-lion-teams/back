@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, request
 from dbutil import create_db_connection  # DB 연결 유틸리티 임포트
 import logging
+from datetime import datetime  # 현재 날짜와 시간을 가져오기 위해 사용
 
 # 블루프린트 정의
 admin_sleepover_approve_bp = Blueprint('admin_sleepover_approve', __name__)
@@ -24,10 +25,11 @@ def approve_sleepover_request():
     try:
         cursor = connection.cursor()
 
-        # 승인 처리: SID에 해당하는 외박 신청의 CHECK 값을 1로 업데이트
+        # 승인 처리: SID에 해당하는 외박 신청의 CHECK 값을 1로 업데이트하고, AT 컬럼에 현재 날짜와 시간 저장
+        current_datetime = datetime.now()  # 현재 날짜와 시간
         cursor.execute(
-            "UPDATE SLEEPOVER SET `CHECK` = 1 WHERE SID = %s",
-            (request_id,)
+            "UPDATE SLEEPOVER SET `CHECK` = 1, `AT` = %s WHERE SID = %s",
+            (current_datetime, request_id)
         )
 
         # 승인된 외박 신청서의 SSTNUM(학생 학번) 가져오기
@@ -48,7 +50,7 @@ def approve_sleepover_request():
         )
 
         connection.commit()
-        message = 'Sleepover request approved and student sleep count updated.'
+        message = 'Sleepover request approved, student sleep count updated, and timestamp recorded.'
 
         return jsonify({'message': message}), 200
 

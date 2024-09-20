@@ -9,7 +9,7 @@ class TestApproveSleepoverRequest(unittest.TestCase):
 
         # 승인할 외박 신청 SID (테스트할 값으로 변경)
         correct_payload = {
-            'sid': 2  # 테스트할 외박 신청 SID (예: 2)
+            'sid': 10  # 테스트할 외박 신청 SID (예: 2)
         }
 
         # API 호출

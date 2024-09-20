@@ -1,15 +1,15 @@
-### 학생 점호 버튼 클릭 api 
-
+# student_check.py
 from flask import Blueprint, jsonify, request
-from dbutil import create_db_connection
-import logging
+from dbutil import create_db_connection  # DB 연결 유틸리티 임포트
+import logging  # logging 모듈 임포트
+from datetime import datetime  # 현재 날짜와 시간을 가져오기 위해 사용
 
 # 블루프린트 정의
-student_check = Blueprint('student_check', __name__)
+student_check_bp = Blueprint('student_check', __name__)
 
-# 점호 체크 엔드포인트
-@student_check.route('/student/check', methods=['POST'])
-def check_attendance():
+# 학생 출석 체크 엔드포인트
+@student_check_bp.route('/student/check_in', methods=['POST'])
+def check_in():
     # 요청에서 학번 가져오기
     student_number = request.json.get('stnum')
 
@@ -25,27 +25,22 @@ def check_attendance():
     try:
         cursor = connection.cursor(dictionary=True)
 
-        # 학생의 현재 IN 값을 가져오기
-        cursor.execute("SELECT `IN` FROM STUDENT WHERE STNUM = %s", (student_number,))
-        result = cursor.fetchone()
+        # 현재 날짜 가져오기
+        today_date = datetime.now().date()
 
-        if result:
-            # 현재 IN 값 가져오기
-            current_in = result['IN']
+        # 학생의 출석을 IN 테이블에 기록
+        cursor.execute("INSERT INTO `IN` (ISTNUM, DATE, SEP) VALUES (%s, %s, %s)", 
+                       (student_number, today_date, 1))
+        
+        # STUDENT 테이블에서 해당 학생의 IN 값을 1 증가
+        cursor.execute("UPDATE STUDENT SET `IN` = `IN` + 1 WHERE STNUM = %s", (student_number,))
+        
+        connection.commit()
 
-            # IN 값을 1 증가
-            new_in = current_in + 1
-
-            # 업데이트 쿼리 실행
-            cursor.execute("UPDATE STUDENT SET `IN` = %s WHERE STNUM = %s", (new_in, student_number))
-            connection.commit()
-
-            return jsonify({'message': f"Attendance checked for student {student_number}. IN updated to {new_in}."}), 200
-        else:
-            return jsonify({'error': 'Student not found'}), 404
+        return jsonify({'message': f"Attendance checked for student {student_number}. Recorded in IN table and updated STUDENT table."}), 200
 
     except Exception as e:
-        logging.error(f"Error during attendance check: {e}")
+        logging.error(f"Error during attendance check-in: {e}")
         return jsonify({'error': str(e)}), 500
     finally:
         if connection.is_connected():

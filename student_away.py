@@ -44,14 +44,14 @@ def mark_absent_students():
         # 현재 날짜를 가져옴
         today = datetime.now().date()
 
-        # IN 값이 0인 학생들을 AWAY 테이블에 추가
+        # IN 값이 0인 학생들을 AWAY 테이블에 추가, SEP 값은 0으로 설정
         for student in absent_students:
             stnum = student['STNUM']
-            cursor.execute("INSERT INTO AWAY (ASTNUM, DATE) VALUES (%s, %s)", (stnum, today))
+            cursor.execute("INSERT INTO AWAY (ASTNUM, DATE, SEP) VALUES (%s, %s, %s)", (stnum, today, 0))
 
         connection.commit()
-        logging.info('Absent students marked successfully.')
-        return {'message': 'Absent students marked successfully.'}, 200
+        logging.info('Absent students marked successfully with SEP = 0.')
+        return {'message': 'Absent students marked successfully with SEP = 0.'}, 200
 
     except Exception as e:
         logging.error(f"Error while marking absent students: {e}")

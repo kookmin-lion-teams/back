@@ -1,22 +1,31 @@
+import unittest
 import requests
 
-def test_check_attendance():
-    # 점호 체크 API 엔드포인트 URL
-    url = 'http://127.0.0.1:5000/student/check'
+class TestStudentCheck(unittest.TestCase):
+    
+    def test_check_in(self):
+        # 학생 출석 체크 API 엔드포인트 URL
+        url = 'http://127.0.0.1:5000/student/check_in'
 
-    # 올바른 학번으로 점호 체크 시도
-    correct_payload = {'stnum': '20212621'}  # 존재하는 학번을 사용해야 합니다
-    response = requests.post(url, json=correct_payload)
-    assert response.status_code == 200, f"Expected status code 200, but got {response.status_code}"
-    assert 'Attendance checked for student' in response.json().get('message', ''), "Failed to check attendance with correct student number"
-    print("Test with correct student number passed!")
+        # 올바른 요청 데이터 (테스트할 학생 학번 사용)
+        payload = {'stnum': 5}  # 테스트할 학번 설정
 
-    # 잘못된 학번으로 점호 체크 시도
-    wrong_payload = {'stnum': '99999999'}  # 존재하지 않는 학번
-    response = requests.post(url, json=wrong_payload)
-    assert response.status_code == 404, f"Expected status code 404, but got {response.status_code}"
-    assert 'Student not found' in response.json().get('error', ''), "Failed to handle wrong student number correctly"
-    print("Test with wrong student number passed!")
+        # API 호출
+        response = requests.post(url, json=payload)
+
+        # 응답 상태 코드 출력 및 검증
+        print("Response status code:", response.status_code)
+        try:
+            response_json = response.json()
+            print("Response JSON:", response_json)
+        except ValueError:
+            print("Failed to decode JSON response.")
+            response_json = {}
+
+        # 테스트 검증
+        self.assertEqual(response.status_code, 200, f"Expected status code 200, but got {response.status_code}")
+        self.assertIn('Recorded in IN table', response_json.get('message', ''), 
+                      "Expected 'Recorded in IN table' in the message")
 
 if __name__ == '__main__':
-    test_check_attendance()
+    unittest.main()

@@ -10,18 +10,18 @@ student_clean_bp = Blueprint('student_clean', __name__)
 @student_clean_bp.route('/student/upload_clean_photos', methods=['POST'])
 def upload_clean_photos_blob():
     # 요청으로부터 학생 학번 및 방 번호, 자리 번호 가져오기
-    student_number = request.json.get('student_number')
-    room_number = request.json.get('room_number')
-    seat_number = request.json.get('seat_number')
+    student_number = request.form.get('student_number')
+    room_number = request.form.get('room_number')
+    seat_number = request.form.get('seat_number')
 
-    # BLOB 데이터 가져오기
-    photos = request.json.get('photos')  # photos는 프론트에서 보낸 BLOB 데이터 리스트
+    # 파일 체크: 최소 1장, 최대 4장이어야 함
+    files = request.files.getlist('photos')  # 'photos'는 프론트에서 보낸 파일 리스트
 
     if not student_number or not room_number or not seat_number:
         return jsonify({'error': 'Student number, room number, and seat number are required'}), 400
 
-    if not photos or len(photos) < 1 or len(photos) > 4:
-        return jsonify({'error': 'You must upload at least 1 and at most 4 photos in BLOB format'}), 400
+    if len(files) < 1 or len(files) > 4:
+        return jsonify({'error': 'You must upload at least 1 and at most 4 photos'}), 400
 
     # 데이터베이스 연결 생성
     connection = create_db_connection()
@@ -35,8 +35,15 @@ def upload_clean_photos_blob():
         warn_default = 0
 
         # 4개 미만의 사진이 업로드되면 남은 PIC 칼럼은 NULL로 설정
-        while len(photos) < 4:
-            photos.append(None)
+        photo_blobs = []
+        for file in files:
+            # 파일을 BLOB 형식으로 읽어오기
+            photo_blob = file.read()
+            photo_blobs.append(photo_blob)
+        
+        # 4개 미만의 사진이 업로드되면 남은 PIC 칼럼은 NULL로 설정
+        while len(photo_blobs) < 4:
+            photo_blobs.append(None)
 
         # 사진 BLOB 데이터를 데이터베이스에 저장
         update_query = """
@@ -45,7 +52,7 @@ def upload_clean_photos_blob():
             WHERE CROOM = %s AND CSEATUM = %s
         """
         
-        cursor.execute(update_query, (*photos, warn_default, room_number, seat_number))
+        cursor.execute(update_query, (*photo_blobs, warn_default, room_number, seat_number))
 
         connection.commit()
         return jsonify({'message': 'Photos uploaded successfully as BLOB data'}), 200

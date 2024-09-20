@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from dbutil import create_db_connection
 import logging
-from datetime import datetime
 
 # 블루프린트 정의
 student_clean_bp = Blueprint('student_clean', __name__)
